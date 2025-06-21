@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { z } from "zod";
+import { insertParkingLocationSchema } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Get all parking locations
@@ -84,6 +85,25 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(updatedLocation);
     } catch (error) {
       res.status(500).json({ message: "Failed to update parking availability" });
+    }
+  });
+
+  // Create new parking location
+  app.post("/api/parking-locations", async (req, res) => {
+    try {
+      const result = insertParkingLocationSchema.safeParse(req.body);
+      if (!result.success) {
+        return res.status(400).json({ 
+          message: "Invalid parking location data", 
+          errors: result.error.errors 
+        });
+      }
+
+      const newLocation = await storage.createParkingLocation(result.data);
+      res.status(201).json(newLocation);
+    } catch (error) {
+      console.error("Error creating parking location:", error);
+      res.status(500).json({ message: "Failed to create parking location" });
     }
   });
 

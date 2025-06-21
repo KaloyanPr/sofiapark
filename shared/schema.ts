@@ -35,6 +35,9 @@ export const insertUserSchema = createInsertSchema(users).pick({
 export const insertParkingLocationSchema = createInsertSchema(parkingLocations).omit({
   id: true,
   lastUpdated: true,
+}).extend({
+  currency: z.string().default("лв"),
+  status: z.enum(["available", "limited", "full"]).default("available"),
 });
 
 export type InsertUser = z.infer<typeof insertUserSchema>;

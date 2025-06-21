@@ -1,4 +1,6 @@
 import { users, parkingLocations, type User, type InsertUser, type ParkingLocation, type InsertParkingLocation } from "@shared/schema";
+import { db } from "./db";
+import { eq, ilike, or } from "drizzle-orm";
 
 export interface IStorage {
   getUser(id: number): Promise<User | undefined>;
@@ -11,6 +13,80 @@ export interface IStorage {
   getParkingLocationsByDistrict(district: string): Promise<ParkingLocation[]>;
   searchParkingLocations(query: string): Promise<ParkingLocation[]>;
   updateParkingAvailability(id: number, availableSpots: number): Promise<ParkingLocation | undefined>;
+  createParkingLocation(location: InsertParkingLocation): Promise<ParkingLocation>;
+}
+
+export class DatabaseStorage implements IStorage {
+  async getUser(id: number): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user || undefined;
+  }
+
+  async getUserByUsername(username: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user || undefined;
+  }
+
+  async createUser(insertUser: InsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(insertUser)
+      .returning();
+    return user;
+  }
+
+  async getAllParkingLocations(): Promise<ParkingLocation[]> {
+    return await db.select().from(parkingLocations);
+  }
+
+  async getParkingLocationById(id: number): Promise<ParkingLocation | undefined> {
+    const [location] = await db.select().from(parkingLocations).where(eq(parkingLocations.id, id));
+    return location || undefined;
+  }
+
+  async getParkingLocationsByDistrict(district: string): Promise<ParkingLocation[]> {
+    return await db.select().from(parkingLocations).where(ilike(parkingLocations.district, `%${district}%`));
+  }
+
+  async searchParkingLocations(query: string): Promise<ParkingLocation[]> {
+    return await db.select().from(parkingLocations).where(
+      or(
+        ilike(parkingLocations.name, `%${query}%`),
+        ilike(parkingLocations.address, `%${query}%`),
+        ilike(parkingLocations.district, `%${query}%`),
+        ilike(parkingLocations.landmark, `%${query}%`)
+      )
+    );
+  }
+
+  async updateParkingAvailability(id: number, availableSpots: number): Promise<ParkingLocation | undefined> {
+    const [location] = await db.select().from(parkingLocations).where(eq(parkingLocations.id, id));
+    if (!location) return undefined;
+
+    const status = availableSpots === 0 ? "full" as const : 
+                  availableSpots < location.totalSpots * 0.2 ? "limited" as const : 
+                  "available" as const;
+
+    const [updatedLocation] = await db
+      .update(parkingLocations)
+      .set({ 
+        availableSpots,
+        status,
+        lastUpdated: new Date()
+      })
+      .where(eq(parkingLocations.id, id))
+      .returning();
+
+    return updatedLocation;
+  }
+
+  async createParkingLocation(location: InsertParkingLocation): Promise<ParkingLocation> {
+    const [newLocation] = await db
+      .insert(parkingLocations)
+      .values(location)
+      .returning();
+    return newLocation;
+  }
 }
 
 export class MemStorage implements IStorage {
@@ -343,6 +419,20 @@ export class MemStorage implements IStorage {
     this.parkingLocations.set(id, updatedLocation);
     return updatedLocation;
   }
+
+  async createParkingLocation(insertLocation: InsertParkingLocation): Promise<ParkingLocation> {
+    const id = this.currentParkingId++;
+    const location: ParkingLocation = { 
+      ...insertLocation, 
+      id,
+      currency: insertLocation.currency || "лв",
+      features: insertLocation.features || [],
+      landmark: insertLocation.landmark || null,
+      lastUpdated: new Date()
+    };
+    this.parkingLocations.set(id, location);
+    return location;
+  }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();

@@ -60,3 +60,17 @@ export function useRefreshParkingData() {
     },
   });
 }
+
+export function useCreateParkingLocation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (location: any) => {
+      const response = await apiRequest("POST", "/api/parking-locations", location);
+      return response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/parking-locations"] });
+    },
+  });
+}

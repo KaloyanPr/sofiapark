@@ -1,9 +1,10 @@
 import { useState, useMemo } from "react";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Plus } from "lucide-react";
 import { ParkingHeader } from "@/components/parking-header";
 import { SearchBar } from "@/components/search-bar";
 import { ParkingMap } from "@/components/parking-map";
 import { ParkingDetailsSheet } from "@/components/parking-details-sheet";
+import { AddParkingForm } from "@/components/add-parking-form";
 import { MapControls } from "@/components/map-controls";
 import { MapLegend } from "@/components/map-legend";
 import { Button } from "@/components/ui/button";
@@ -18,6 +19,7 @@ const SOFIA_CENTER: MapCenter = {
 export default function ParkingMapPage() {
   const [selectedParking, setSelectedParking] = useState<ParkingLocation | null>(null);
   const [isSheetOpen, setIsSheetOpen] = useState(false);
+  const [isAddFormOpen, setIsAddFormOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [filters, setFilters] = useState<SearchFilters>({
     availableOnly: false,
@@ -133,14 +135,28 @@ export default function ParkingMapPage() {
         onClose={handleCloseSheet}
       />
 
-      {/* Floating Action Button */}
-      <Button
-        className="fixed bottom-6 right-6 bg-sofia-blue text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-shadow z-20"
-        onClick={handleRefresh}
-        disabled={refreshMutation.isPending}
-      >
-        <RotateCcw className={`h-5 w-5 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
-      </Button>
+      <AddParkingForm
+        isOpen={isAddFormOpen}
+        onClose={() => setIsAddFormOpen(false)}
+        initialLocation={SOFIA_CENTER}
+      />
+
+      {/* Floating Action Buttons */}
+      <div className="fixed bottom-6 right-6 flex flex-col space-y-3 z-20">
+        <Button
+          className="bg-green-600 text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-all hover:bg-green-700"
+          onClick={() => setIsAddFormOpen(true)}
+        >
+          <Plus className="h-5 w-5" />
+        </Button>
+        <Button
+          className="bg-sofia-blue text-white p-4 rounded-full shadow-xl hover:shadow-2xl transition-shadow"
+          onClick={handleRefresh}
+          disabled={refreshMutation.isPending}
+        >
+          <RotateCcw className={`h-5 w-5 ${refreshMutation.isPending ? "animate-spin" : ""}`} />
+        </Button>
+      </div>
     </div>
   );
 }
