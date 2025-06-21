@@ -2,8 +2,8 @@ export interface ParkingLocation {
   id: number;
   name: string;
   address: string;
-  latitude: string;
-  longitude: string;
+  latitude: string | null;
+  longitude: string | null;
   totalSpots: number;
   availableSpots: number;
   pricePerHour: string;

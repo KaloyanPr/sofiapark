@@ -428,6 +428,8 @@ export class MemStorage implements IStorage {
       currency: insertLocation.currency || "лв",
       features: insertLocation.features || [],
       landmark: insertLocation.landmark || null,
+      latitude: insertLocation.latitude || null,
+      longitude: insertLocation.longitude || null,
       lastUpdated: new Date()
     };
     this.parkingLocations.set(id, location);

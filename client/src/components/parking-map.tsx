@@ -94,10 +94,10 @@ export function ParkingMap({ locations, center, onMarkerClick, onZoomIn, onZoomO
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
         />
         
-        {locations.map((location) => (
+        {locations.filter(location => location.latitude && location.longitude).map((location) => (
           <Marker
             key={location.id}
-            position={[parseFloat(location.latitude), parseFloat(location.longitude)]}
+            position={[parseFloat(location.latitude!), parseFloat(location.longitude!)]}
             icon={createParkingMarker(location.status)}
             eventHandlers={{
               click: () => onMarkerClick(location),

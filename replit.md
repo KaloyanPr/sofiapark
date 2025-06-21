@@ -94,9 +94,10 @@ Sofia Parking is a full-stack web application that provides real-time parking in
 
 ## Changelog
 
-Changelog:
-- June 21, 2025. Initial setup
+- June 21, 2025: Initial Sofia parking map application setup
+- June 21, 2025: Added user-contributed parking locations feature with PostgreSQL database, comprehensive form with validation, and optional coordinate fields
 
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+Coordinates should be optional when adding new parking locations.

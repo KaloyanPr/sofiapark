@@ -218,13 +218,17 @@ export function AddParkingForm({ isOpen, onClose, initialLocation }: AddParkingF
                   name="latitude"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Latitude *</FormLabel>
+                      <FormLabel>Latitude</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           step="0.000001"
-                          placeholder="42.6977"
-                          {...field}
+                          placeholder="42.6977 (optional)"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
@@ -237,13 +241,17 @@ export function AddParkingForm({ isOpen, onClose, initialLocation }: AddParkingF
                   name="longitude"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Longitude *</FormLabel>
+                      <FormLabel>Longitude</FormLabel>
                       <FormControl>
                         <Input
                           type="number"
                           step="0.000001"
-                          placeholder="23.3219"
-                          {...field}
+                          placeholder="23.3219 (optional)"
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                          onBlur={field.onBlur}
+                          name={field.name}
+                          ref={field.ref}
                         />
                       </FormControl>
                       <FormMessage />
