@@ -118,5 +118,6 @@ export async function seedDatabase() {
     console.log(`Seeded ${sofiaParking.length} parking locations successfully.`);
   } catch (error) {
     console.error("Error seeding database:", error);
+    throw error;
   }
 }
